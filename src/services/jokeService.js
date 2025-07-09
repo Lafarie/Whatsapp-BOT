@@ -15,15 +15,23 @@ class JokeService {
   async sendJoke(message) {
     try {
       const joke = await this.getRandomJoke();
-      const jokeMsg = await message.reply(joke.setup || joke.joke);
       
+      // Send the setup/joke first
+      await message.reply(joke.setup || joke.joke);
+      
+      // If there's a punchline, send it after a delay
       if (joke.delivery) {
-        setTimeout(() => {
-          jokeMsg.reply(joke.delivery);
+        setTimeout(async () => {
+          try {
+            await message.reply(joke.delivery);
+          } catch (error) {
+            console.error('Error sending joke punchline:', error);
+          }
         }, config.behavior.timeouts.jokeDelivery);
       }
     } catch (error) {
-      message.reply(error.message);
+      console.error('Error in sendJoke:', error);
+      await message.reply(error.message || 'Sorry, I could not fetch a joke at this time.');
     }
   }
 }

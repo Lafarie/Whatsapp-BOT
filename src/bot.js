@@ -9,7 +9,7 @@ class WhatsAppBot {
     this.messageHandler = null;
     this.logger = P({ level: 'silent' }); // Disable logs for cleaner output
   }
-
+  
   setupEventListeners() {
     // Handle credential updates
     this.socket.ev.on('creds.update', this.saveCreds);
