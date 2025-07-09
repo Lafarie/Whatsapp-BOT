@@ -1,61 +1,78 @@
 const qrcode = require("qrcode-terminal");
-const { Client, LocalAuth } = require("whatsapp-web.js");
+const { default: makeWASocket, DisconnectReason, useMultiFileAuthState } = require("@whiskeysockets/baileys");
+const P = require("pino");
 const MessageHandler = require("./handlers/messageHandler");
 
 class WhatsAppBot {
   constructor() {
-    this.client = new Client({
-      authStrategy: new LocalAuth(),
-    });
-    
-    this.messageHandler = new MessageHandler(this.client);
-    this.setupEventListeners();
+    this.socket = null;
+    this.messageHandler = null;
+    this.logger = P({ level: 'silent' }); // Disable logs for cleaner output
   }
 
   setupEventListeners() {
-    // QR Code event
-    this.client.on("qr", (qr) => {
-      console.log("Scan this QR code to connect:");
-      qrcode.generate(qr, { small: true });
+    // Handle credential updates
+    this.socket.ev.on('creds.update', this.saveCreds);
+
+    // Handle connection updates
+    this.socket.ev.on('connection.update', (update) => {
+      const { connection, lastDisconnect } = update;
+      
+      if (connection === 'close') {
+        const shouldReconnect = (lastDisconnect?.error)?.output?.statusCode !== DisconnectReason.loggedOut;
+        console.log('Connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect);
+        
+        if (shouldReconnect) {
+          this.start();
+        }
+      } else if (connection === 'open') {
+        console.log("✅ WhatsApp Bot is ready!");
+      }
     });
 
-    // Ready event
-    this.client.on("ready", () => {
-      console.log("WhatsApp Bot is ready!");
-    });
-
-    // Message events
-    this.client.on("message", async (message) => {
-      await this.messageHandler.handleMessage(message);
-    });
-
-    this.client.on("message_create", async (message) => {
-      await this.messageHandler.handleMessage(message);
+    // Handle incoming messages
+    this.socket.ev.on('messages.upsert', async (m) => {
+      const message = m.messages[0];
+      if (!message.key.fromMe && m.type === 'notify') {
+        await this.messageHandler.handleBaileysMessage(message);
+      }
     });
 
     // Error handling
-    this.client.on("auth_failure", (msg) => {
-      console.error("Authentication failed:", msg);
-    });
-
-    this.client.on("disconnected", (reason) => {
-      console.log("Client was logged out:", reason);
+    this.socket.ev.on('connection.update', (update) => {
+      if (update.qr) {
+        console.log("Scan this QR code to connect:");
+        qrcode.generate(update.qr, { small: true });
+      }
     });
 
     // Handle process termination
     process.on('SIGINT', () => {
       console.log('Received SIGINT. Gracefully shutting down...');
-      this.client.destroy();
+      this.socket?.end();
       process.exit(0);
     });
   }
 
   async start() {
     try {
-      console.log("Starting WhatsApp Bot...");
-      await this.client.initialize();
+      console.log("🚀 Starting WhatsApp Bot...");
+      
+      // Use multi-file auth state for session persistence
+      const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
+      this.saveCreds = saveCreds;
+      
+      this.socket = makeWASocket({
+        auth: state,
+        logger: this.logger,
+        printQRInTerminal: true
+      });
+
+      this.messageHandler = new MessageHandler(this.socket);
+      this.setupEventListeners();
+      
     } catch (error) {
-      console.error("Error starting bot:", error);
+      console.error("❌ Error starting bot:", error);
       process.exit(1);
     }
   }

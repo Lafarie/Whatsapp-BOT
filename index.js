@@ -1,4 +1,5 @@
-const WhatsAppBot = require('./src/bot');
+// const WhatsAppBot = require('./src/bot');
+import WhatsAppBot from './src/bot';
 
 // Create and start the bot
 const bot = new WhatsAppBot();

@@ -45,6 +45,39 @@ class MessageHandler {
     }
   }
 
+  async handleBaileysMessage(message) {
+    try {
+      // Convert Baileys message to our standard format
+      const standardMessage = this.convertBaileysMessage(message);
+      await this.handleMessage(standardMessage);
+    } catch (error) {
+      console.error('Error handling Baileys message:', error);
+    }
+  }
+
+  convertBaileysMessage(baileysMessage) {
+    return {
+      body: baileysMessage.message?.conversation || 
+            baileysMessage.message?.extendedTextMessage?.text || '',
+      from: baileysMessage.key.remoteJid,
+      key: baileysMessage.key,
+      isGroup: baileysMessage.key.remoteJid.includes('@g.us'),
+      reply: async (text) => {
+        await this.client.sendMessage(baileysMessage.key.remoteJid, { text });
+      },
+      getChat: async () => ({
+        isGroup: baileysMessage.key.remoteJid.includes('@g.us'),
+        name: 'Unknown' // We'd need to implement group name fetching
+      }),
+      getContact: async () => ({
+        number: baileysMessage.key.remoteJid.split('@')[0],
+        name: 'Unknown',
+        pushname: 'Unknown',
+        isMe: baileysMessage.key.fromMe
+      })
+    };
+  }
+
   async logMessage(message) {
     try {
       const check = message.body;

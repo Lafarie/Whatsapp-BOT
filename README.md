@@ -1,13 +1,23 @@
-# WhatsApp Bot - Optimized Version
+# WhatsApp Bot - Secure & Optimized with pnpm + Baileys
 
-A modern, modular WhatsApp bot built with Node.js for group management and automation.
+A modern, secure WhatsApp bot built with Node.js, using Baileys and pnpm for optimal performance and security.
 
-## Features
+## 🚀 Features
 
 - **Group Management**: Add participants to WhatsApp groups from Google Sheets
-- **Joke Service**: Get random jokes from external API
+- **Joke Service**: Get random jokes from external API  
 - **Admin Commands**: Special commands for bot administrators
 - **Modular Architecture**: Well-organized code structure for easy maintenance
+- **Environment Configuration**: Secure configuration management
+- **Zero Vulnerabilities**: No security vulnerabilities (verified with pnpm audit)
+- **Fast Package Management**: Uses pnpm for faster installs and better disk usage
+
+## 🔒 Security Improvements
+
+✅ **No vulnerabilities** (previously had 5 high severity issues)  
+✅ **Baileys instead of whatsapp-web.js** (no Puppeteer dependencies)  
+✅ **Latest axios version** (1.10.0 with security fixes)  
+✅ **pnpm package manager** (better dependency resolution)
 - **Environment Configuration**: Secure configuration management
 - **Error Handling**: Comprehensive error handling and logging
 
@@ -35,36 +45,47 @@ A modern, modular WhatsApp bot built with Node.js for group management and autom
 
 ## Installation
 
-1. Clone the repository
-2. Install dependencies:
+1. **Install pnpm** (if not already installed):
    ```bash
-   npm install
+   curl -fsSL https://get.pnpm.io/install.sh | sh -
+   # or
+   npm install -g pnpm
    ```
 
-3. Copy the environment template:
+2. **Clone the repository and install dependencies**:
+   ```bash
+   pnpm install
+   ```
+
+3. **Copy the environment template**:
    ```bash
    cp .env.template .env
    ```
 
-4. Configure your environment variables in `.env`:
-   ```
-   BOT_NUMBER=your_bot_number@c.us
-   ADMIN_NUMBER=your_admin_number@c.us
-   SHEETDB_SOURCE_URL=your_sheetdb_source_url
-   SHEETDB_BACKUP_URL=your_sheetdb_backup_url
-   GOOGLE_SHEET_URL=your_google_sheet_url
-   ```
+4. **Configure your environment variables in `.env`**
 
 ## Usage
 
 ### Development
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ### Production
 ```bash
-npm start
+pnpm start
+```
+
+### Other Commands
+```bash
+# Clean install (removes everything and reinstalls)
+pnpm run fresh-install
+
+# Security audit
+pnpm audit
+
+# Clean temporary files
+pnpm run clean
 ```
 
 ## Commands
