@@ -10,6 +10,9 @@ dependencies:
   dotenv:
     specifier: ^16.3.0
     version: 16.3.0
+  openai:
+    specifier: ^5.8.3
+    version: 5.8.3
   pino:
     specifier: ^9.7.0
     version: 9.7.0
@@ -1223,6 +1226,19 @@ packages:
     engines: {node: '>=14.0.0'}
     dev: false
 
+  /openai@5.8.3:
+    resolution: {integrity: sha512-IdotKmquCnpouTRvF9xRXVhMx6K5Sc8zkD6Usf+so+NTQ+qiJ8bLSCd7LBb8b/Rof7uYltlSxJhNp+spphKI4Q==}
+    hasBin: true
+    peerDependencies:
+      ws: ^8.18.0
+      zod: ^3.23.8
+    peerDependenciesMeta:
+      ws:
+        optional: true
+      zod:
+        optional: true
+    dev: false
+
   /optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
     engines: {node: '>= 0.8.0'}
@@ -1610,7 +1626,7 @@ packages:
     dev: false
 
   github.com/whiskeysockets/eslint-config/f264cd06d24a43f76e4ad2d81528f8485a1e7efe(eslint@9.30.1)(typescript@5.8.3):
-    resolution: {tarball: https://codeload.github.com/whiskeysockets/eslint-config/tar.gz/f264cd06d24a43f76e4ad2d81528f8485a1e7efe}
+    resolution: {commit: f264cd06d24a43f76e4ad2d81528f8485a1e7efe, repo: git+ssh://git@github.com/whiskeysockets/eslint-config.git, type: git}
     id: github.com/whiskeysockets/eslint-config/f264cd06d24a43f76e4ad2d81528f8485a1e7efe
     name: '@whiskeysockets/eslint-config'
     version: 1.0.0

@@ -9,7 +9,22 @@ class CommandHandler {
 
   async handleHelpCommand(message) {
     try {
-      const helpText = `Commands\n1. joke - Get a random joke\n2. add - Add users to group\n3. admin - Admin commands\n4. Coming soon...`;
+      const helpText = `🤖 *Farhad's WhatsApp Bot Commands*
+
+*Basic Commands:*
+• !joke - Get a random joke
+• !add - Add users to group
+• !admin - Admin commands
+• !clearai - Clear chat history with AI
+
+*AI Features:*
+✨ Just chat normally! I'll respond as Farhad
+• Works in private chats automatically
+• In groups, mention "farhad" or "bot" to get my attention
+• I remember our conversation context
+• Use !clearai to start fresh
+
+*Note:* This bot responds as if you're chatting directly with Farhad!`;
       await message.reply(helpText);
     } catch (error) {
       console.error('Error handling help command:', error);

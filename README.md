@@ -4,6 +4,7 @@ A modern, secure WhatsApp bot built with Node.js, using Baileys and pnpm for opt
 
 ## 🚀 Features
 
+- **🤖 AI Chat Integration**: Powered by OpenAI ChatGPT - responds as if you're chatting directly with Farhad
 - **Group Management**: Add participants to WhatsApp groups from Google Sheets
 - **Joke Service**: Get random jokes from external API  
 - **Admin Commands**: Special commands for bot administrators
@@ -11,6 +12,15 @@ A modern, secure WhatsApp bot built with Node.js, using Baileys and pnpm for opt
 - **Environment Configuration**: Secure configuration management
 - **Zero Vulnerabilities**: No security vulnerabilities (verified with pnpm audit)
 - **Fast Package Management**: Uses pnpm for faster installs and better disk usage
+
+## 🤖 AI Features
+
+- **Personal Conversation Style**: The bot responds as if you're chatting directly with Farhad, not an AI
+- **Context Awareness**: Remembers conversation history for natural, flowing conversations
+- **Smart Filtering**: Only responds to appropriate messages (not commands or bot interactions)
+- **Group Intelligence**: In groups, responds when mentioned or when specific keywords are used
+- **Conversation Management**: Use `!clearai` to reset conversation history
+- **Fallback Handling**: Graceful error handling with friendly fallback messages
 
 ## 🔒 Security Improvements
 
@@ -30,8 +40,9 @@ A modern, secure WhatsApp bot built with Node.js, using Baileys and pnpm for opt
 │   ├── handlers/
 │   │   ├── commandHandler.js  # Command processing
 │   │   ├── groupHandler.js    # Group operations
-│   │   └── messageHandler.js  # Message routing
+│   │   └── messageHandler.js  # Message routing & AI integration
 │   ├── services/
+│   │   ├── aiService.js       # OpenAI ChatGPT integration
 │   │   ├── jokeService.js     # Joke API integration
 │   │   ├── sheetDBService.js  # Google Sheets integration
 │   │   └── groupService.js    # Group management logic
@@ -39,7 +50,7 @@ A modern, secure WhatsApp bot built with Node.js, using Baileys and pnpm for opt
 │   │   └── messageUtils.js    # Utility functions
 │   └── bot.js                 # Main bot class
 ├── index.js                   # Entry point
-├── .env.template              # Environment variables template
+├── .env.example               # Environment variables template
 └── package.json               # Dependencies and scripts
 ```
 
@@ -59,10 +70,19 @@ A modern, secure WhatsApp bot built with Node.js, using Baileys and pnpm for opt
 
 3. **Copy the environment template**:
    ```bash
-   cp .env.template .env
+   cp .env.example .env
    ```
 
-4. **Configure your environment variables in `.env`**
+4. **Configure your environment variables in `.env`**:
+   - Set your WhatsApp bot number and admin number
+   - Add your OpenAI API key for AI features
+   - Configure SheetDB URLs for group management
+   - Adjust AI settings (model, temperature, etc.)
+
+5. **Get OpenAI API Key**:
+   - Sign up at [OpenAI](https://platform.openai.com/)
+   - Create an API key
+   - Add it to your `.env` file as `OPENAI_API_KEY`
 
 ## Usage
 
@@ -94,7 +114,26 @@ pnpm run clean
 - `!joke` or `joke` - Get a random joke
 - `!add` - Instructions for adding users to groups
 - `!add [Group Name]` - Add users from sheet to specified group
+- `!clearai` - Clear conversation history with AI
 - `!admin` - Admin-only commands
+
+## 🤖 AI Chat Behavior
+
+**Private Chats:**
+- Responds to most messages automatically as Farhad
+- Maintains conversation context
+- Ignores commands and very short messages
+
+**Group Chats:**
+- Only responds when "farhad", "bot", or mentions are detected
+- Helps maintain natural group conversation flow
+- Can be directly addressed for responses
+
+**Personality:**
+- Responds as Farhad Lafarie, not as an AI
+- Casual, friendly, tech-enthusiastic tone
+- Shows expertise in programming and bot development
+- Uses natural WhatsApp-style language
 
 ## Key Improvements
 

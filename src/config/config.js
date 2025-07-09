@@ -3,8 +3,8 @@ require('dotenv').config();
 module.exports = {
   // Bot Configuration
   bot: {
-    myNumber: process.env.BOT_NUMBER || "947761234567@c.us",
-    adminNumber: process.env.ADMIN_NUMBER || "947761234567@c.us"
+    myNumber: process.env.BOT_NUMBER || "94776350933@c.us",
+    adminNumber: process.env.ADMIN_NUMBER || "94776350933@c.us"
   },
 
   // API Configuration
@@ -28,6 +28,15 @@ module.exports = {
     }
   },
 
+  // AI Configuration
+  ai: {
+    openaiApiKey: process.env.OPENAI_API_KEY,
+    model: process.env.OPENAI_MODEL || "gpt-3.5-turbo",
+    maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS) || 150,
+    temperature: parseFloat(process.env.OPENAI_TEMPERATURE) || 0.8,
+    enabled: process.env.AI_ENABLED !== 'false' // Default to true unless explicitly disabled
+  },
+
   // Command Configuration
   commands: {
     help: ["help", "!help"],
@@ -35,6 +44,7 @@ module.exports = {
     add: ["!add", "add"],
     admin: ["!admin"],
     ping: ["!ping", "ping"],
-    pong: ["!pong", "pong"]
+    pong: ["!pong", "pong"],
+    clearai: ["!clearai", "clear ai"]
   }
 };

@@ -2,6 +2,7 @@ const config = require('../config/config');
 const CommandHandler = require('../handlers/commandHandler');
 const GroupHandler = require('../handlers/groupHandler');
 const MessageUtils = require('../utils/messageUtils');
+const aiService = require('../services/aiService');
 
 class MessageHandler {
   constructor(client) {
@@ -13,6 +14,7 @@ class MessageHandler {
   async handleMessage(message) {
     try {
       const messageBody = message.body;
+      let commandHandled = false;
       
       // Log message details
       this.logMessage(message);
@@ -20,24 +22,40 @@ class MessageHandler {
       // Handle different types of messages
       if (MessageUtils.isCommand(message, config.commands.help)) {
         await this.commandHandler.handleHelpCommand(message);
+        commandHandled = true;
       } 
       else if (MessageUtils.isCommand(message, config.commands.joke)) {
         await this.commandHandler.handleJokeCommand(message);
+        commandHandled = true;
       }
       else if (MessageUtils.isCommand(message, config.commands.add)) {
         await this.commandHandler.handleAddCommand(message);
+        commandHandled = true;
       }
       else if (MessageUtils.isCommand(message, config.commands.admin)) {
         await this.commandHandler.handleAdminCommand(message);
+        commandHandled = true;
+      }
+      else if (MessageUtils.isCommand(message, config.commands.clearai)) {
+        await this.handleClearAICommand(message);
+        commandHandled = true;
       }
       else if (this.groupHandler.isGroupAddCommand(messageBody)) {
         await this.groupHandler.handleGroupAddCommand(message);
+        commandHandled = true;
       }
       else if (MessageUtils.isGreeting(message)) {
         await this.commandHandler.handleGreeting(message);
+        commandHandled = true;
       }
       else if (messageBody.toLowerCase().includes("delete")) {
         await this.commandHandler.handleDeleteRequest(message);
+        commandHandled = true;
+      }
+      
+      // If no command was handled and AI is enabled, try AI response
+      if (!commandHandled && config.ai.enabled) {
+        await this.handleAIResponse(message);
       }
       
     } catch (error) {
@@ -114,6 +132,63 @@ class MessageHandler {
         }
       }
     };
+  }
+
+  async handleAIResponse(message) {
+    try {
+      const messageBody = message.body;
+      const chat = await message.getChat();
+      const contact = await message.getContact();
+      const isGroup = chat.isGroup;
+      
+      // Check if we should respond with AI
+      if (!aiService.shouldRespondWithAI(messageBody, isGroup)) {
+        return;
+      }
+      
+      // Don't respond to own messages
+      if (contact.isMe) {
+        return;
+      }
+      
+      console.log(`🤖 Generating AI response for ${contact.name || contact.number}`);
+      
+      // Generate AI response
+      const aiResponse = await aiService.generateResponse(
+        messageBody,
+        contact.number || contact.from,
+        contact.name || contact.pushname || 'friend'
+      );
+      
+      if (aiResponse) {
+        await message.reply(aiResponse);
+        console.log(`✅ AI response sent: "${aiResponse}"`);
+      }
+      
+    } catch (error) {
+      console.error('Error handling AI response:', error);
+      // Send a friendly fallback message
+      try {
+        await message.reply("Hey! I'm having some tech issues right now. Can you try again? 😅");
+      } catch (replyError) {
+        console.error('Error sending fallback message:', replyError);
+      }
+    }
+  }
+
+  async handleClearAICommand(message) {
+    try {
+      const contact = await message.getContact();
+      const userNumber = contact.number || contact.from;
+      
+      aiService.clearConversationHistory(userNumber);
+      await message.reply("✅ Cleared our conversation history! Starting fresh 🧹");
+      
+      console.log(`🗑️ Cleared AI conversation history for ${contact.name || userNumber}`);
+    } catch (error) {
+      console.error('Error clearing AI conversation:', error);
+      await message.reply("Oops, couldn't clear the conversation history. Try again!");
+    }
   }
 
   extractMessageText(baileysMessage) {
