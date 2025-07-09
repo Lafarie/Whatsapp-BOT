@@ -9,7 +9,7 @@ class CommandHandler {
 
   async handleHelpCommand(message) {
     try {
-      const helpText = `Commands\n1. !joke - Get a random joke\n2. !add - Add users to group\n3. !admin - Admin commands\n4. Coming soon...`;
+      const helpText = `Commands\n1. joke - Get a random joke\n2. add - Add users to group\n3. admin - Admin commands\n4. Coming soon...`;
       await message.reply(helpText);
     } catch (error) {
       console.error('Error handling help command:', error);
