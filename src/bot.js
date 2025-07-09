@@ -64,8 +64,7 @@ class WhatsAppBot {
       
       this.socket = makeWASocket({
         auth: state,
-        logger: this.logger,
-        printQRInTerminal: true
+        logger: this.logger
       });
 
       this.messageHandler = new MessageHandler(this.socket);
