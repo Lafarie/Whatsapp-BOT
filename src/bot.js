@@ -33,8 +33,21 @@ class WhatsAppBot {
     // Handle incoming messages
     this.socket.ev.on('messages.upsert', async (m) => {
       const message = m.messages[0];
+      
+      // Only process messages that are not from us and are notifications
       if (!message.key.fromMe && m.type === 'notify') {
-        await this.messageHandler.handleBaileysMessage(message);
+        try {
+          console.log('📥 Received message:', {
+            from: message.key.remoteJid,
+            pushName: message.pushName,
+            messageType: Object.keys(message.message || {})[0],
+            isGroup: message.key.remoteJid.includes('@g.us')
+          });
+          
+          await this.messageHandler.handleBaileysMessage(message);
+        } catch (error) {
+          console.error('❌ Error processing message:', error);
+        }
       }
     });
 

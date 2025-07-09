@@ -56,39 +56,114 @@ class MessageHandler {
   }
 
   convertBaileysMessage(baileysMessage) {
+    // Extract message text from various message types
+    const messageText = this.extractMessageText(baileysMessage);
+    const remoteJid = baileysMessage.key.remoteJid;
+    const isGroup = remoteJid.includes('@g.us');
+    const phoneNumber = remoteJid.split('@')[0];
+    
     return {
-      body: baileysMessage.message?.conversation || 
-            baileysMessage.message?.extendedTextMessage?.text || '',
-      from: baileysMessage.key.remoteJid,
+      body: messageText,
+      from: remoteJid,
       key: baileysMessage.key,
-      isGroup: baileysMessage.key.remoteJid.includes('@g.us'),
+      isGroup: isGroup,
       reply: async (text) => {
-        await this.client.sendMessage(baileysMessage.key.remoteJid, { text });
+        await this.client.sendMessage(remoteJid, { text });
       },
-      getChat: async () => ({
-        isGroup: baileysMessage.key.remoteJid.includes('@g.us'),
-        name: 'Unknown' // We'd need to implement group name fetching
-      }),
-      getContact: async () => ({
-        number: baileysMessage.key.remoteJid.split('@')[0],
-        name: 'Unknown',
-        pushname: 'Unknown',
-        isMe: baileysMessage.key.fromMe
-      })
+      getChat: async () => {
+        if (isGroup) {
+          // For groups, try to get group metadata
+          try {
+            const groupMetadata = await this.client.groupMetadata(remoteJid);
+            return {
+              isGroup: true,
+              name: groupMetadata.subject || 'Unknown Group'
+            };
+          } catch (error) {
+            return {
+              isGroup: true,
+              name: 'Unknown Group'
+            };
+          }
+        } else {
+          return {
+            isGroup: false,
+            name: 'Private Chat'
+          };
+        }
+      },
+      getContact: async () => {
+        try {
+          // Try to get contact info from WhatsApp
+          const contactInfo = await this.client.onWhatsApp(phoneNumber);
+          const pushName = baileysMessage.pushName || 'Unknown';
+          
+          return {
+            number: phoneNumber,
+            name: pushName,
+            pushname: pushName,
+            isMe: baileysMessage.key.fromMe || false
+          };
+        } catch (error) {
+          return {
+            number: phoneNumber,
+            name: baileysMessage.pushName || 'Unknown',
+            pushname: baileysMessage.pushName || 'Unknown',
+            isMe: baileysMessage.key.fromMe || false
+          };
+        }
+      }
     };
+  }
+
+  extractMessageText(baileysMessage) {
+    const message = baileysMessage.message;
+    if (!message) return '';
+
+    // Handle different message types
+    if (message.conversation) {
+      return message.conversation;
+    }
+    
+    if (message.extendedTextMessage?.text) {
+      return message.extendedTextMessage.text;
+    }
+    
+    if (message.imageMessage?.caption) {
+      return message.imageMessage.caption;
+    }
+    
+    if (message.videoMessage?.caption) {
+      return message.videoMessage.caption;
+    }
+    
+    if (message.documentMessage?.caption) {
+      return message.documentMessage.caption;
+    }
+
+    // For other message types, return empty string
+    return '';
   }
 
   async logMessage(message) {
     try {
-      const check = message.body;
-      const group = await message.getChat();
+      const messageBody = message.body || '';
+      const chat = await message.getChat();
       const contact = await message.getContact();
       
-      console.log(
-        `${check}\n${contact.number} ${contact.name} ${contact.pushname} ${group.name}\n`
-      );
+      const logInfo = {
+        message: messageBody,
+        from: contact.number || 'Unknown',
+        name: contact.name || contact.pushname || 'Unknown',
+        chat: chat.name || (chat.isGroup ? 'Group Chat' : 'Private Chat'),
+        isGroup: chat.isGroup || false
+      };
+      
+      console.log(`📨 Message from ${logInfo.name} (${logInfo.from}) in ${logInfo.chat}: "${messageBody}"`);
     } catch (error) {
       console.error('Error logging message:', error);
+      // Fallback logging
+      console.log(`📨 Message: "${message.body || 'Unknown message'}"`);
     }
   }
 }
