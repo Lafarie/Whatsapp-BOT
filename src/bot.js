@@ -9,7 +9,7 @@ class WhatsAppBot {
     this.messageHandler = null;
     this.logger = P({ level: 'silent' }); // Disable logs for cleaner output
   }
-  
+
   setupEventListeners() {
     // Handle credential updates
     this.socket.ev.on('creds.update', this.saveCreds);
@@ -39,9 +39,9 @@ class WhatsAppBot {
         try {
           console.log('📥 Received message:', {
             from: message.key.remoteJid,
-            pushName: message.pushName,
-            messageType: Object.keys(message.message || {})[0],
-            isGroup: message.key.remoteJid.includes('@g.us')
+            // pushName: message.pushName,
+            // messageType: Object.keys(message.message || {})[0],
+            // isGroup: message.key.remoteJid.includes('@g.us')
           });
           
           await this.messageHandler.handleBaileysMessage(message);

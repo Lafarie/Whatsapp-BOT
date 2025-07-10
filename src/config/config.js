@@ -25,6 +25,10 @@ module.exports = {
       jokeDelivery: 5000,
       dataProcessing: 5000,
       statusReport: 15000
+    },
+    ai: {
+      batchDelay: 15000, // 15 seconds to collect messages
+      cooldownDelay: 10000 // 10 seconds cooldown after response
     }
   },
 
@@ -45,6 +49,7 @@ module.exports = {
     admin: ["!admin"],
     ping: ["!ping", "ping"],
     pong: ["!pong", "pong"],
-    clearai: ["!clearai", "clear ai"]
+    clearai: ["!clearai", "clear ai"],
+    stats: ["!stats", "stats"]
   }
 };

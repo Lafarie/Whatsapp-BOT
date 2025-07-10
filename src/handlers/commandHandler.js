@@ -16,12 +16,14 @@ class CommandHandler {
 • !add - Add users to group
 • !admin - Admin commands
 • !clearai - Clear chat history with AI
+• !stats - Show bot statistics
 
 *AI Features:*
 ✨ Just chat normally! I'll respond as Farhad
 • Works in private chats automatically
 • In groups, mention "farhad" or "bot" to get my attention
-• I remember our conversation context
+• I collect messages for 15 seconds then respond to all at once
+• After responding, I wait 10 seconds before accepting new messages
 • Use !clearai to start fresh
 
 *Note:* This bot responds as if you're chatting directly with Farhad!`;

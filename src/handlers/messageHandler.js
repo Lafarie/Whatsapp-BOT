@@ -40,6 +40,10 @@ class MessageHandler {
         await this.handleClearAICommand(message);
         commandHandled = true;
       }
+      else if (MessageUtils.isCommand(message, config.commands.stats)) {
+        await this.handleStatsCommand(message);
+        commandHandled = true;
+      }
       else if (this.groupHandler.isGroupAddCommand(messageBody)) {
         await this.groupHandler.handleGroupAddCommand(message);
         commandHandled = true;
@@ -151,19 +155,20 @@ class MessageHandler {
         return;
       }
       
-      console.log(`🤖 Generating AI response for ${contact.name || contact.number}`);
+      const userNumber = contact.number || contact.from;
+      const userName = contact.name || contact.pushname || 'friend';
       
-      // Generate AI response
-      const aiResponse = await aiService.generateResponse(
+      console.log(`📦 Adding message to batch for ${userName}: "${messageBody}"`);
+      
+      // Add message to batch instead of immediate processing
+      aiService.addMessageToBatch(
         messageBody,
-        contact.number || contact.from,
-        contact.name || contact.pushname || 'friend'
+        userNumber,
+        userName,
+        async (response) => {
+          await message.reply(response);
+        }
       );
-      
-      if (aiResponse) {
-        await message.reply(aiResponse);
-        console.log(`✅ AI response sent: "${aiResponse}"`);
-      }
       
     } catch (error) {
       console.error('Error handling AI response:', error);
@@ -176,15 +181,48 @@ class MessageHandler {
     }
   }
 
+  async handleStatsCommand(message) {
+    try {
+      const stats = aiService.getStats();
+      const statsText = `📊 *Bot Statistics*
+
+🤖 *AI System:*
+• Active conversations: ${stats.activeConversations}
+• Total messages: ${stats.totalMessages}
+• Pending batches: ${stats.pendingBatches}
+• Users in cooldown: ${stats.activeCooldowns}
+
+⚙️ *Batch Settings:*
+• Batch delay: 15 seconds
+• Cooldown period: 10 seconds
+
+💡 *How batching works:*
+• Send multiple messages quickly
+• Bot waits 15s to collect all messages
+• Responds to all messages at once
+• Then waits 10s before accepting new messages`;
+
+      await message.reply(statsText);
+      
+      console.log(`📊 Stats requested by user`);
+    } catch (error) {
+      console.error('Error showing stats:', error);
+      await message.reply("Oops, couldn't get the stats right now. Try again!");
+    }
+  }
+
   async handleClearAICommand(message) {
     try {
       const contact = await message.getContact();
       const userNumber = contact.number || contact.from;
       
+      // Clear conversation history and any pending batches
       aiService.clearConversationHistory(userNumber);
-      await message.reply("✅ Cleared our conversation history! Starting fresh 🧹");
+      aiService.clearUserBatch(userNumber);
       
-      console.log(`🗑️ Cleared AI conversation history for ${contact.name || userNumber}`);
+      await message.reply("✅ Cleared our conversation history and pending messages! Starting fresh 🧹");
+      
+      console.log(`🗑️ Cleared AI conversation history and batches for ${contact.name || userNumber}`);
     } catch (error) {
       console.error('Error clearing AI conversation:', error);
       await message.reply("Oops, couldn't clear the conversation history. Try again!");
