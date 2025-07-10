@@ -225,6 +225,10 @@ Remember: You're just Farhad texting back naturally!
       return false;
     }
 
+    if (message.broadcast === true) {
+      return true;
+    }
+
     // In groups, only respond when mentioned or specific keywords
     if (isGroup) {
       const mentionKeywords = ['farhad', 'bot', '@'];
@@ -234,7 +238,7 @@ Remember: You're just Farhad texting back naturally!
     }
 
     // In private chats, respond to most messages except very short ones
-    if (message.length < 2) {
+    if (message.length < 4) {
       return false;
     }
 
