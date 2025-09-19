@@ -6,9 +6,8 @@ const qrcode = require('qrcode-terminal')
 const authFile = path.join(__dirname, 'auth_info.json')
 
 // List of numbers to auto-send messages to (add numbers with country code)
-const numberList = [
-	'94772844996@s.whatsapp.net',  // Replace with actual numbers
-	'94776350933@s.whatsapp.net',  // Format: countrycode+number@s.whatsapp.net
+const numberList = [  // Replace with actual numbers
+	'94123456789@s.whatsapp.net',  // Format: countrycode+number@s.whatsapp.net
 	// Add more numbers here...
 ]
 
