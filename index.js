@@ -1,27 +1,28 @@
 const fs = require('fs')
 const path = require('path')
+const qrcode = require('qrcode-terminal')
 
 // persist auth state to a single file (the Baileys helper will be imported dynamically)
 const authFile = path.join(__dirname, 'auth_info.json')
 
-(async function main() {
+async function main() {
 	try {
 		const baileys = await import('@whiskeysockets/baileys')
-		const { default: makeWaSocket, useSingleFileAuthState, DisconnectReason } = baileys
+		const { default: makeWaSocket, useMultiFileAuthState, DisconnectReason } = baileys
 
-		const { state, saveState } = useSingleFileAuthState(authFile)
+		const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys')
 
 		async function start() {
 			const sock = makeWaSocket({ auth: state })
 
-			sock.ev.on('creds.update', saveState)
+			sock.ev.on('creds.update', saveCreds)
 
 			sock.ev.on('connection.update', (update) => {
 				const { connection, lastDisconnect, qr } = update
 				if (qr) {
 					// print QR to terminal for scanning
 					console.log('QR RECEIVED — scan with WhatsApp mobile app')
-					console.log(qr)
+					qrcode.generate(qr, { small: true })
 				}
 
 				if (connection === 'close') {
@@ -63,7 +64,7 @@ const authFile = path.join(__dirname, 'auth_info.json')
 							console.log(`Received 'hi' from ${sender}, replying with image`)
 
 							// send an image — change to any accessible URL or local file
-							const imageUrl = 'https://via.placeholder.com/512.png?text=Hello+from+Bot'
+							const imageUrl = 'https://i.ibb.co/N469MXY/genuine-question-v0-xsefqljb7dof1.webp'
 
 							await sock.sendMessage(from, {
 								image: { url: imageUrl },
@@ -83,4 +84,7 @@ const authFile = path.join(__dirname, 'auth_info.json')
 	} catch (err) {
 		console.error('failed to import baileys or start bot', err)
 	}
-})()
+}
+
+
+main()
