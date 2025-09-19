@@ -1,37 +1,15 @@
 {
   "name": "whatsapp-bot",
-  "version": "2.0.0",
-  "description": "An optimized WhatsApp bot for group management and automation",
+  "version": "1.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "clean": "rm -rf node_modules pnpm-lock.yaml auth_info_baileys",
-    "fresh-install": "pnpm run clean && pnpm install",
-    "audit": "pnpm audit"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "packageManager": "pnpm@8.0.0",
-  "keywords": [
-    "whatsapp",
-    "bot",
-    "automation",
-    "group-management"
-  ],
-  "author": "Farhad Lafarie",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.7.18",
-    "axios": "^1.10.0",
-    "dotenv": "^16.3.0",
-    "openai": "^5.8.3",
-    "pino": "^9.7.0",
-    "qrcode-terminal": "^0.12.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.0"
-  },
-  "engines": {
-    "node": ">=16.0.0"
+    "@whiskeysockets/baileys": "^7.0.0-rc.3"
   }
 }
