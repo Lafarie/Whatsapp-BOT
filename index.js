@@ -5,6 +5,13 @@ const qrcode = require('qrcode-terminal')
 // persist auth state to a single file (the Baileys helper will be imported dynamically)
 const authFile = path.join(__dirname, 'auth_info.json')
 
+// List of numbers to auto-send messages to (add numbers with country code)
+const numberList = [
+	'94772844996@s.whatsapp.net',  // Replace with actual numbers
+	'94776350933@s.whatsapp.net',  // Format: countrycode+number@s.whatsapp.net
+	// Add more numbers here...
+]
+
 async function main() {
 	try {
 		const baileys = await import('@whiskeysockets/baileys')
@@ -38,6 +45,12 @@ async function main() {
 
 				if (connection === 'open') {
 					console.log('Connection opened')
+					
+					// Auto-send images to predefined number list
+					setTimeout(async () => {
+						console.log('Sending images to predefined number list...')
+						await sendToNumberList(sock)
+					}, 3000) // Wait 3 seconds after connection opens
 				}
 			})
 
@@ -63,8 +76,8 @@ async function main() {
 						if (text.trim().toLowerCase() === 'hi') {
 							console.log(`Received 'hi' from ${sender}, replying with image`)
 
-							// send an image — change to any accessible URL or local file
-							const imageUrl = 'https://i.ibb.co/N469MXY/genuine-question-v0-xsefqljb7dof1.webp'
+							// send an image — using a working image URL
+							const imageUrl = 'https://i.ibb.co/qYHN0xny/ticket-1750181266230.png'
 
 							await sock.sendMessage(from, {
 								image: { url: imageUrl },
@@ -86,5 +99,30 @@ async function main() {
 	}
 }
 
+// Function to send images to all numbers in the list
+async function sendToNumberList(sock) {
+	const imageUrl = 'https://i.ibb.co/qYHN0xny/ticket-1750181266230.png'
+	
+	for (const number of numberList) {
+		// Skip empty or invalid numbers
+		if (!number || number === '@s.whatsapp.net' || number.length < 10) {
+			console.log(`Skipping invalid number: ${number}`)
+			continue
+		}
+		
+		try {
+			console.log(`Sending image to ${number}`)
+			await sock.sendMessage(number, {
+				image: { url: imageUrl },
+				caption: 'Hello! This is an automated message with an image.'
+			})
+			// Wait 2 seconds between each message to avoid rate limiting
+			await new Promise(resolve => setTimeout(resolve, 2000))
+		} catch (error) {
+			console.error(`Failed to send message to ${number}:`, error)
+		}
+	}
+	console.log('Finished sending to all numbers in the list')
+}
 
 main()
